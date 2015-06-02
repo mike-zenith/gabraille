@@ -1,0 +1,37 @@
+{
+  "name": "gabraille.js",
+  "version": "0.1.0",
+  "description": "Any language to Braille translator",
+  "main": "src/index.js",
+  "directories": {
+    "src": "src",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "karma start karma.conf.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mike-zenith/gabraille.git"
+  },
+  "keywords": [
+    "braille"
+  ],
+  "author": "MikeZenith (Imre Juhász)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mike-zenith/gabraille/issues"
+  },
+  "homepage": "https://github.com/mike-zenith/gabraille",
+  "devDependencies": {
+    "babel-runtime": "^5.4.7",
+    "babelify": "^6.1.2",
+    "jasmine-core": "^2.3.4",
+    "karma": "^0.12.35",
+    "karma-browserify": "^4.2.1",
+    "karma-chrome-launcher": "^0.1.12",
+    "karma-jasmine": "^0.3.5",
+    "karma-phantomjs-launcher": "^0.2.0",
+    "phantomjs": "^1.9.17"
+  }
+}
