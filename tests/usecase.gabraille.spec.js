@@ -90,5 +90,5 @@ describe("Gabraille use cases", function () {
         expect(got).toEqual(expected);
     });
 
-
 });
+

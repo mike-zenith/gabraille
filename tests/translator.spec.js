@@ -63,17 +63,9 @@ describe("Translator: settings", function () {
     });
 
     it("uses static defaults method to determine default values", function () {
-        var before = Translator.defaults;
-        var called = false;
-
-        Translator.defaults = function () {
-            called = true;
-        };
-
-        var dummy = new Translator();
-        expect(called).toEqual(true);
-
-        Translator.defaults = before;
+        spyOn(Translator, 'defaults');
+        new Translator();
+        expect(Translator.defaults).toHaveBeenCalled();
     });
 
     it("sets 'eliminateWhitespace' by default to 'reduce'", function () {
@@ -100,13 +92,11 @@ describe("Translator: settings", function () {
     });
 
     it("merges given options with defaults", function () {
-        var before = Translator.defaults;
-        Translator.defaults = function () {
+        spyOn(Translator, 'defaults').and.callFake(function () {
             return {
                 'flaffy': 'fluffy'
             }
-        };
-
+        });
         var given = {
             'fluffy': true
         };
@@ -116,10 +106,7 @@ describe("Translator: settings", function () {
         };
 
         var dummy = new Translator(given);
-
         expect(dummy.options).toEqual(expected);
-
-        Translator.defaults = before;
     });
 
     it("allows chaining when calling 'setEliminateWhitespace'", function () {
@@ -148,18 +135,16 @@ describe("Translator: settings", function () {
     });
 
     it("uses setter 'eliminateWhitespace' when calling 'setEliminateWhitespace'", function () {
-        var given = false;
         var dummy = new Translator();
+        var spy = jasmine.createSpy('pukk');
         Object.defineProperties(dummy, {
             "eliminateWhitespace": {
-                set: function (val) {
-                    given = val;
-                }
+                set: spy.and.returnValue('pikk')
             }
         });
 
         dummy.setEliminateWhitespace('pukk');
-        expect(given).toEqual('pukk');
+        expect(spy).toHaveBeenCalledWith('pukk');
     });
 });
 
