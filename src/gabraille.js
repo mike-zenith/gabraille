@@ -6,17 +6,12 @@ class Gabraille {
     static Translator(opts) {
         return new Translator(opts);
     }
+
     constructor(options = {}) {
         this.options = options;
         this.translator = null;
     }
-    addLanguage(alias, definitions) {
-        if (!this.options.language) {
-            this.options.language = {};
-        }
-        this.options.language[alias] = definitions;
-        return alias;
-    }
+
     set language(language) {
         if (Array.isArray(language)) {
             language = this.addLanguage(language[0], language[1]);
@@ -37,6 +32,14 @@ class Gabraille {
             this.translator = Gabraille.Translator();
         }
         return this.translator;
+    }
+
+    addLanguage(alias, definitions) {
+        if (!this.options.language) {
+            this.options.language = {};
+        }
+        this.options.language[alias] = definitions;
+        return alias;
     }
 }
 

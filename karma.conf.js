@@ -24,21 +24,23 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-        "tests/**spec**.js": ["browserify"]
+        "tests/**/**spec**.js": ["browserify"]
     },
 
     browserify: {
-        debug: true,
+        debug: false,
         transform: [
             ["babelify", {
                 loose:"all",
-                sourceMaps: false,
+                sourceMaps: true,
+                ast: false,
+                compact: false,
+                comments: true,
+                retainLines: true,
                 optional: [ "runtime", "regenerator", "minification.deadCodeElimination", "es6.spec.templateLiterals" ]
             }]
         ],
         configure: function (bundle) {
-            //bundle.on("prebundle", function () {
-            //});
         }
     },
 

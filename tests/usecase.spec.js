@@ -68,16 +68,26 @@ describe("Gabraille use cases", function () {
     });
 
     it("translates multi-line text", function () {
-        subject.language = ["hu/HU", { chars: { "a": [[1]], "b": [[2]], "c": [[3]] } } ];
+        subject.language = ["hu/HU", { chars: { "a": [[1]], "b": [[2]], "c": [[3]], " ": [[0]] } } ];
 
-        var got = subject.translate.text(
+        var got = subject.translate.sequence(
             `aa
             bb
             cc`);
 
+        var expected = [ [[1]], [[1]], [[0]], [[2]], [[2]], [[0]], [[3]], [[3]] ];
+        expect(got).toEqual(expected);
+    });
+
+    it("has option to eliminate whitespace", function () {
+        subject.language = ["hu/HU", { chars: { "a": [[1]], "b": [[2]], "c": [[3]], " ": [[0]] } } ];
+
+        var got = subject.translate.setEliminateWhitespace().sequence(
+            `aa bb
+              cc`);
+
         var expected = [ [[1]], [[1]], [[2]], [[2]], [[3]], [[3]] ];
         expect(got).toEqual(expected);
-
     });
 
 

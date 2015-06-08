@@ -62,6 +62,105 @@ describe("Translator: settings", function () {
 
     });
 
+    it("uses static defaults method to determine default values", function () {
+        var before = Translator.defaults;
+        var called = false;
+
+        Translator.defaults = function () {
+            called = true;
+        };
+
+        var dummy = new Translator();
+        expect(called).toEqual(true);
+
+        Translator.defaults = before;
+    });
+
+    it("sets 'eliminateWhitespace' by default to 'reduce'", function () {
+        var dummy = new Translator();
+        expect(dummy.eliminateWhitespace).toEqual('reduce');
+    });
+
+    it('only accepts true, false and reduce as a value of eliminateWhitespace', function () {
+        var dummy = new Translator();
+        function test() {
+            dummy.eliminateWhitespace = true;
+            dummy.eliminateWhitespace = false;
+            dummy.eliminateWhitespace = 'reduce';
+        }
+        expect(test).not.toThrow();
+    });
+
+    it('throws error when eliminateWhitespace is invalid', function () {
+        var dummy = new Translator();
+        function test() {
+            dummy.eliminateWhitespace = 'bullshit';
+        }
+        expect(test).toThrowError(/invalid/);
+    });
+
+    it("merges given options with defaults", function () {
+        var before = Translator.defaults;
+        Translator.defaults = function () {
+            return {
+                'flaffy': 'fluffy'
+            }
+        };
+
+        var given = {
+            'fluffy': true
+        };
+        var expected = {
+            'fluffy': true,
+            'flaffy': 'fluffy'
+        };
+
+        var dummy = new Translator(given);
+
+        expect(dummy.options).toEqual(expected);
+
+        Translator.defaults = before;
+    });
+
+    it("allows chaining when calling 'setEliminateWhitespace'", function () {
+        function run() {
+            var dummy = new Translator();
+            var opts = dummy.setEliminateWhitespace(true).options;
+            expect(opts).toEqual(dummy.options);
+        }
+
+        expect(run).not.toThrow();
+    });
+
+    it("uses 'true' as the default value when calling setEliminateWhitespace", function () {
+        var dummy = new Translator();
+        expect(dummy.setEliminateWhitespace().eliminateWhitespace).toEqual(true);
+    });
+
+    it("allows using 'eliminateWhitespace' setter and getter", function () {
+        function run() {
+            var dummy = new Translator();
+            dummy.eliminateWhitespace = 'reduce';
+            expect(dummy.eliminateWhitespace).toEqual('reduce');
+        }
+
+        expect(run).not.toThrow();
+    });
+
+    it("uses setter 'eliminateWhitespace' when calling 'setEliminateWhitespace'", function () {
+        var given = false;
+        var dummy = new Translator();
+        Object.defineProperties(dummy, {
+            "eliminateWhitespace": {
+                set: function (val) {
+                    given = val;
+                }
+            }
+        });
+
+        dummy.setEliminateWhitespace('pukk');
+        expect(given).toEqual('pukk');
+    });
 });
 
 describe("Translator: char definitions", function () {
@@ -125,7 +224,8 @@ describe("Translator: sequence", function () {
             a: [ [1,2,3] ],
             b: [ [1,2], [2,3] ],
             c: [ [1,4], [1,4], [1,4] ],
-            d: [ 1,2 ]
+            d: [ 1,2 ],
+            " ": [ [0] ]
         }
     };
 
@@ -156,7 +256,7 @@ describe("Translator: sequence", function () {
         expect(got).toEqual(chars);
     });
 
-    it("reads chars using separator from generator", function () {
+    it("reads chars (using separator) from generator", function () {
         var separator = ["{", "}"];
         var chars = "{ab}c";
         var expected = "abc";
@@ -169,26 +269,46 @@ describe("Translator: sequence", function () {
         expect(got).toEqual(expected);
     });
 
-});
+    it("reads white space (1 char, space)", function () {
+        var chars = "a b c";
+        var expected = [ [ [1,2,3] ], [[0]], [ [1,2], [2,3] ], [[0]], [ [1,4], [1,4], [1,4] ] ];
 
-describe("Translator: text", function () {
-    "use strict";
-
-    var subject;
-    var options = {
-        chars: {
-            a: [[1]],
-            b: [[2]],
-            c: [[3]]
-        }
-    };
-
-    beforeEach(function () {
-        subject = new Translator(options);
+        expect(subject.sequence(chars)).toEqual(expected);
     });
 
-    afterEach(function () {
-        subject = null;
+    it("reads multiple white spaces as 1 char", function () {
+        var chars = "a  b        c";
+        var expected = [ [ [1,2,3] ], [[0]], [ [1,2], [2,3] ], [[0]], [ [1,4], [1,4], [1,4] ] ];
+
+        expect(subject.sequence(chars)).toEqual(expected);
+    });
+
+    it("uses option to eliminate multiple whitespace", function () {
+        subject.setEliminateWhitespace();
+
+        var chars = "a  b        c";
+        var expected = [ [ [1,2,3] ], [ [1,2], [2,3] ], [ [1,4], [1,4], [1,4] ] ];
+
+        expect(subject.sequence(chars)).toEqual(expected);
+    });
+
+    it("uses eliminateWhitespace 'false' option", function () {
+        subject.setEliminateWhitespace(false);
+
+        var chars = "a  b  c";
+        var expected = [ [ [1,2,3] ], [[0]], [[0]], [ [1,2], [2,3] ], [[0]], [[0]], [ [1,4], [1,4], [1,4] ] ];
+
+        expect(subject.sequence(chars)).toEqual(expected);
+
+    });
+
+    it("uses eliminateWhitespace 'reduce' option", function () {
+        subject.setEliminateWhitespace('reduce');
+
+        var chars = "a  b  c";
+        var expected = [ [ [1,2,3] ], [[0]], [ [1,2], [2,3] ], [[0]], [ [1,4], [1,4], [1,4] ] ];
+
+        expect(subject.sequence(chars)).toEqual(expected);
     });
 
 });

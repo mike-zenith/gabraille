@@ -1,9 +1,41 @@
 "use strict";
 
+function isWhitespace(char) {
+    return char.match(/(\s|\r|\n)+/);
+}
+
 class Translator {
+    static defaults() {
+        return {
+            eliminateWhitespace: 'reduce'
+        }
+    };
+
     constructor(opts = {}) {
-        this.options = opts;
+        this.options = Object.assign({}, Translator.defaults(), opts);
     }
+    set chars(chrs) {
+        this.options.chars = chrs;
+    }
+    get chars() {
+        return this.options.chars;
+    }
+    set eliminateWhitespace(value) {
+        if (~['reduce', false, true].indexOf(value)) {
+            this.options.eliminateWhitespace = value;
+        } else {
+            throw Error("EliminiateWhitespace got invalid value: accepts 'reduce', true, false");
+        }
+    }
+    get eliminateWhitespace() {
+        return this.options.eliminateWhitespace;
+    }
+
+    setEliminateWhitespace(value = true) {
+        this.eliminateWhitespace = value;
+        return this;
+    }
+
     char(chr) {
         if (!this.options.chars) {
             return null;
@@ -17,12 +49,6 @@ class Translator {
         }
 
         return null;
-    }
-    set chars(chrs) {
-        this.options.chars = chrs;
-    }
-    get chars() {
-        return this.options.chars;
     }
 
     charsReader(sequence, separators = ["{", "}"]) {
@@ -49,10 +75,30 @@ class Translator {
         };
     }
 
+    eliminate(char) {
+        return isWhitespace(char) && this.eliminateWhitespace || false;
+    }
+
     sequence(chars) {
         var result = [];
         var generator = this.charsReader(chars);
+        var lastWhitespace = false;
+        var eliminate;
+
         for (let char of generator()) {
+            eliminate = this.eliminate(char);
+            if (eliminate) {
+                if (eliminate === true) {
+                    continue;
+                }
+                char = " ";
+                if (lastWhitespace) {
+                    continue;
+                }
+                lastWhitespace = true;
+            } else {
+                lastWhitespace = false;
+            }
             result.push(this.char(char));
         }
         return result;
