@@ -8,8 +8,8 @@ class Gabraille {
     }
 
     constructor(options = {}) {
-        this.options = options;
-        this.translator = null;
+        var defaults = {};
+        this.options = Object.assign(defaults, options);
     }
 
     set language(language) {

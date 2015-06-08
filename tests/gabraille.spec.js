@@ -15,10 +15,14 @@ describe("Gabraille: init", function () {
 
     it("saves the given options", function () {
         var opts = {
-            dummyData: {}
+            dummyData: {
+                pukk: 'pikk',
+                foo: 1,
+                bar: 'tender'
+            }
         };
         var dummy = new Gabraille(opts);
-        expect(dummy.options).toBe(opts);
+        expect(dummy.options.dummyData).toEqual(opts.dummyData);
     });
 
     it("imports Translator as static", function () {
@@ -35,7 +39,7 @@ describe("Gabraille: init", function () {
         dummy.translator = translator;
         expect(dummy.translator).toBe(translator);
         expect(dummy.translate.char('a')).toBe('b');
-    })
+    });
 });
 
 
